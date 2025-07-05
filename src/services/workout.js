@@ -5,9 +5,24 @@ class WorkoutService extends NotionClient {
         super();
     }
 
-    async logWorkout(type, duration, source = 'Manual Entry', calories = null) {
+    async logWorkout(type, duration, source = 'manual', calories = null) {
         try {
-            const title = `${type} - ${duration}min${calories ? ` (${calories} cal)` : ''}`;
+            // Map to your actual select options
+            const workoutTypeMap = {
+                'Hot Yoga': 'Yoga',
+                'Fitbod Lifting': 'Lifting', 
+                'Punishment Cardio': 'Cardio'
+            };
+            
+            const sourceMap = {
+                'Apple Watch': 'watch',
+                'Manual Entry': 'manual'
+            };
+
+            const mappedType = workoutTypeMap[type] || type;
+            const mappedSource = sourceMap[source] || source;
+            
+            const title = `${mappedType} - ${duration}min${calories ? ` (${calories} cal)` : ''}`;
             
             const properties = {
                 'Date': {
@@ -17,29 +32,36 @@ class WorkoutService extends NotionClient {
                 },
                 'Workout Type': {
                     select: {
-                        name: type
+                        name: mappedType
                     }
                 },
-                'Duration/Calories': {
+                'Duration': {
                     number: duration
                 },
                 'Source': {
                     select: {
-                        name: source
+                        name: mappedSource
                     }
                 }
             };
 
+            // Add calories if provided
+            if (calories) {
+                properties['Calories'] = {
+                    number: calories
+                };
+            }
+
             const response = await this.createPage(this.databases.workouts, properties, title);
             
-            console.log(`💪 Workout logged: ${type} - ${duration} minutes`);
+            console.log(`💪 Workout logged: ${mappedType} - ${duration} minutes`);
             return {
                 id: response.id,
-                type,
+                type: mappedType,
                 duration,
-                source,
+                source: mappedSource,
                 calories,
-                message: `${type} workout logged: ${duration} minutes`
+                message: `${mappedType} workout logged: ${duration} minutes`
             };
         } catch (error) {
             console.error('❌ Error logging workout:', error);
@@ -81,7 +103,8 @@ class WorkoutService extends NotionClient {
                 id: page.id,
                 name: page.properties.Name.title[0]?.text?.content || 'Unnamed',
                 type: page.properties['Workout Type'].select?.name,
-                duration: page.properties['Duration/Calories'].number,
+                duration: page.properties['Duration'].number,
+                calories: page.properties['Calories']?.number,
                 source: page.properties.Source.select?.name,
                 date: page.properties.Date.date.start
             }));
@@ -108,7 +131,8 @@ class WorkoutService extends NotionClient {
                 id: page.id,
                 name: page.properties.Name.title[0]?.text?.content || 'Unnamed',
                 type: page.properties['Workout Type'].select?.name,
-                duration: page.properties['Duration/Calories'].number,
+                duration: page.properties['Duration'].number,
+                calories: page.properties['Calories']?.number,
                 source: page.properties.Source.select?.name,
                 date: page.properties.Date.date.start
             }));
@@ -141,7 +165,7 @@ class WorkoutService extends NotionClient {
                 const type = workout.type;
                 
                 switch (type) {
-                    case 'Hot Yoga':
+                    case 'Yoga': // Updated to match your DB
                         yogaCount++;
                         earnings.workoutCounts.hotYoga++;
                         // Extra yoga beyond 3/week earns $5
@@ -149,13 +173,13 @@ class WorkoutService extends NotionClient {
                             earnings.extraYogaEarnings += 5;
                         }
                         break;
-                    case 'Fitbod Lifting':
+                    case 'Lifting': // Updated to match your DB
                         liftingCount++;
                         earnings.workoutCounts.fitbodLifting++;
                         // Each lifting session earns $10
                         earnings.liftingEarnings += 10;
                         break;
-                    case 'Punishment Cardio':
+                    case 'Cardio': // Updated to match your DB
                         earnings.workoutCounts.punishmentCardio++;
                         break;
                     default:
@@ -201,7 +225,7 @@ class WorkoutService extends NotionClient {
 
             response.results.forEach(page => {
                 const type = page.properties['Workout Type'].select?.name || 'Unknown';
-                const duration = page.properties['Duration/Calories'].number || 0;
+                const duration = page.properties['Duration'].number || 0;
                 const source = page.properties.Source.select?.name || 'Unknown';
                 
                 stats.totalDuration += duration;
@@ -225,7 +249,7 @@ class WorkoutService extends NotionClient {
     async checkBaselineCompliance(weekStart = null) {
         try {
             const workouts = await this.getWorkoutsForWeek(weekStart);
-            const yogaCount = workouts.filter(w => w.type === 'Hot Yoga').length;
+            const yogaCount = workouts.filter(w => w.type === 'Yoga').length; // Updated to match your DB
             
             return {
                 required: 3,

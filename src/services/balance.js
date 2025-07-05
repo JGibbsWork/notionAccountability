@@ -5,7 +5,7 @@ class BalanceService extends NotionClient {
         super();
     }
 
-    async updateBalances(accountA, accountB, checking, availableTransfer) {
+    async updateBalances(accountA, accountB, checking) {
         try {
             const title = `Balances ${this.getCurrentDate()}`;
             
@@ -23,9 +23,6 @@ class BalanceService extends NotionClient {
                 },
                 'Checking Balance': {
                     number: checking
-                },
-                'Available Transfer Amount': {
-                    number: availableTransfer
                 }
             };
 
@@ -37,7 +34,7 @@ class BalanceService extends NotionClient {
                 accountA,
                 accountB,
                 checking,
-                availableTransfer,
+                availableTransfer: accountA, // Available transfer is just Account A balance
                 message: 'Account balances updated'
             };
         } catch (error) {
@@ -66,7 +63,7 @@ class BalanceService extends NotionClient {
                 accountA: latestBalance.properties['Account A Balance'].number,
                 accountB: latestBalance.properties['Account B Balance'].number,
                 checking: latestBalance.properties['Checking Balance'].number,
-                availableTransfer: latestBalance.properties['Available Transfer Amount'].number
+                availableTransfer: latestBalance.properties['Account A Balance'].number // Available transfer = Account A balance
             };
         } catch (error) {
             console.error('❌ Error getting latest balances:', error);
@@ -99,7 +96,7 @@ class BalanceService extends NotionClient {
                 accountA: page.properties['Account A Balance'].number,
                 accountB: page.properties['Account B Balance'].number,
                 checking: page.properties['Checking Balance'].number,
-                availableTransfer: page.properties['Available Transfer Amount'].number
+                availableTransfer: page.properties['Account A Balance'].number // Available transfer = Account A balance
             }));
         } catch (error) {
             console.error('❌ Error getting balance history:', error);
@@ -251,7 +248,7 @@ class BalanceService extends NotionClient {
                 `• Account A: ${this.formatCurrency(latestBalances.accountA)}`,
                 `• Account B: ${this.formatCurrency(latestBalances.accountB)}`,
                 `• Checking: ${this.formatCurrency(latestBalances.checking)}`,
-                `• Available Transfer: ${this.formatCurrency(latestBalances.availableTransfer)}`,
+                `• Available Transfer: ${this.formatCurrency(latestBalances.accountA)}`, // Available transfer = Account A balance
                 '',
                 refillStatus.refillNeeded 
                     ? `⚠️ ${refillStatus.message}`

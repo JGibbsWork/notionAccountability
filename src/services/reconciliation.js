@@ -107,18 +107,18 @@ class ReconciliationService {
 
             // Count yoga sessions for the week to determine if extras earn money
             const weeklyWorkouts = await this.workoutService.getWorkoutsForWeek();
-            const weeklyYogaCount = weeklyWorkouts.filter(w => w.type === 'Hot Yoga').length;
-            const todayYogaCount = todayWorkouts.filter(w => w.type === 'Hot Yoga').length;
+            const weeklyYogaCount = weeklyWorkouts.filter(w => w.type === 'Yoga').length; // Updated for your DB
+            const todayYogaCount = todayWorkouts.filter(w => w.type === 'Yoga').length;
 
             todayWorkouts.forEach(workout => {
                 const workoutEarning = { ...workout, earnings: 0 };
 
                 switch (workout.type) {
-                    case 'Fitbod Lifting':
+                    case 'Lifting': // Updated for your DB
                         workoutEarning.earnings = 10;
                         earnings.liftingEarnings += 10;
                         break;
-                    case 'Hot Yoga':
+                    case 'Yoga': // Updated for your DB
                         // Only count extra yoga beyond 3/week
                         if (weeklyYogaCount > 3) {
                             workoutEarning.earnings = 5;

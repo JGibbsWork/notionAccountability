@@ -236,8 +236,8 @@ app.get('/bonus/pending', async (req, res) => {
 // BALANCE ROUTES
 app.post('/balance/update', async (req, res) => {
     try {
-        const { accountA, accountB, checking, availableTransfer } = req.body;
-        const result = await balanceService.updateBalances(accountA, accountB, checking, availableTransfer);
+        const { accountA, accountB, checking } = req.body;
+        const result = await balanceService.updateBalances(accountA, accountB, checking);
         res.json({ status: 'success', data: result });
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message });

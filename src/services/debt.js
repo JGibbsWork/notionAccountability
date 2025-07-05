@@ -10,7 +10,7 @@ class DebtService extends NotionClient {
             const title = `${this.formatCurrency(amount)} - ${reason}`;
             
             const properties = {
-                'Date Assigned': {
+                'Date Assigned ': { // Note the extra space in your DB
                     date: {
                         start: this.getCurrentDate()
                     }
@@ -57,7 +57,7 @@ class DebtService extends NotionClient {
             };
 
             const sorts = [{
-                property: 'Date Assigned',
+                property: 'Date Assigned ', // Note the extra space
                 direction: 'ascending'
             }];
 
@@ -69,7 +69,7 @@ class DebtService extends NotionClient {
                 originalAmount: page.properties['Original Amount'].number,
                 currentAmount: page.properties['Current Amount'].number,
                 interestRate: page.properties['Interest Rate'].number,
-                dateAssigned: page.properties['Date Assigned'].date.start,
+                dateAssigned: page.properties['Date Assigned '].date.start, // Note the extra space
                 status: page.properties.Status.select?.name
             }));
         } catch (error) {
@@ -203,7 +203,7 @@ class DebtService extends NotionClient {
             cutoffDate.setDate(cutoffDate.getDate() - days);
             
             const filter = {
-                property: 'Date Assigned',
+                property: 'Date Assigned ',
                 date: {
                     on_or_after: cutoffDate.toISOString().split('T')[0]
                 }
